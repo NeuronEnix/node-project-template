@@ -14,11 +14,11 @@ function resOk ( res, data ) {
     logger( res, { ...resData } );
 };
 
-function resErr ( res, errObj, {info, moreInfo} = {} ) {
-    info = info || "Error occurred, Try again later..."; // default info if non is provided ( to be displayed to client )
-    const errData = { info, ...errObj, sts: "ERR" };
+function resErr ( res, errObj, {infoToClient, infoToServer} = {} ) {
+    infoToClient = infoToClient || "Error occurred, Try again later..."; // default info if non is provided ( to be displayed to client )
+    const errData = { info: infoToClient, ...errObj, sts: "ERR" };
     res.status( 400 ).send( errData );
-    logger( res, { ...errData, moreInfo } );
+    logger( res, { ...errData, infoToServer } );
 }
 
 const resErrObj = {
@@ -45,11 +45,11 @@ function uncaughtErrHandler ( err, req, res, next ) {
     if( err.type === 'entity.parse.failed' ) {
         // call reqLogger here because in the main.js express.json() will throw the err
         reqLogger( req, res, next ); // which would not run any of the middleware functions and gets redirected here
-        return resErr( res, resErrObj.jsonParseErr, { info: "Incorrect JSON" } );
+        return resErr( res, resErrObj.jsonParseErr, { infoToClient: "Incorrect JSON" } );
     }
 
     // No idea what the error is...
-    else return resErr( res, resErrObj.unknownErr, { moreInfo: err } );
+    else return resErr( res, resErrObj.unknownErr, { infoToServer: err } );
 };
 
 module.exports = { resOk, resErr, resErrObj, uncaughtErrHandler };
