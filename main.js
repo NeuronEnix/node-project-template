@@ -1,6 +1,19 @@
 const express = require("express");
 const app = express();
-app.get( "/", ( req, res, next ) => {
-    res.status( 200 ).send( "Hello...");
+
+const reqLogger = require( "./middleware/requestLogger" );
+const { resOk, resErr, resErrObj, uncaughtErrHandler } = require( "./middleware/response" );
+
+app.use( express.json() );
+app.use( reqLogger );
+
+
+app.post( "/", ( req, res, next ) => {
+    resOk( res, "hello");
 });
-app.listen( 9999, () => console.log("Server listening at: 9999" ) );
+
+app.use( ( req, res ) => resErr( res, resErrObj.invalidAPI ) );
+app.use( uncaughtErrHandler );
+
+const PORT = process.env.PORT || 8080
+app.listen( PORT, () => console.log("Server listening at:", PORT ) );
