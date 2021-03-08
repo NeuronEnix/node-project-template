@@ -1,4 +1,5 @@
 const util = require("util");
+const reqLogger = require( "../requestLogger" );
 
 function logger( res, data ) {
     console.log( "Response:", util.inspect(
@@ -39,13 +40,16 @@ const resErrObj = {
 
 // uncaught error handler
 function uncaughtErrHandler ( err, req, res, next ) {
-    console.log( err )
 
     // if req data is having incorrectly structured json data
-    if( err.type === 'entity.parse.failed' ) resErr( res, resErrObj.jsonParseErr, { info: "Incorrect JSON" } );
+    if( err.type === 'entity.parse.failed' ) {
+        // call reqLogger here because in the main.js express.json() will throw the err
+        reqLogger( req, res, next ); // which would not run any of the middleware functions and gets redirected here
+        return resErr( res, resErrObj.jsonParseErr, { info: "Incorrect JSON" } );
+    }
 
     // No idea what the error is...
-    else resErr( res, resErrObj.unknownErr, { moreInfo: err } );
+    else return resErr( res, resErrObj.unknownErr, { moreInfo: err } );
 };
 
 module.exports = { resOk, resErr, resErrObj, uncaughtErrHandler };
