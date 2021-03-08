@@ -1,0 +1,25 @@
+{
+  "name": "project-template",
+  "version": "1.0.0",
+  "description": "General node.js project template with response structure, tokens, logs, etc",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NeuronEnix/node-project-template.git"
+  },
+  "author": "Kaushik R Bangera",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NeuronEnix/node-project-template/issues"
+  },
+  "homepage": "https://github.com/NeuronEnix/node-project-template#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.11.19",
+    "nodemon": "^2.0.7"
+  }
+}
