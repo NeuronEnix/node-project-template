@@ -1,18 +1,18 @@
 const express = require("express");
 const app = express();
 
-const reqLogger = require( "./middleware/requestLogger" );
-const { resOk, resErr, resErrObj, uncaughtErrHandler } = require( "./middleware/response" );
+const requestHandler = require( "./middleware/requestHandler" );
+const { resOk, resErr, resErrType, uncaughtErrHandler } = require( "./middleware/responseHandler" );
 
 app.use( express.json() );
-app.use( reqLogger );
+app.use( requestHandler.logger );
 
 
 app.post( "/", ( req, res, next ) => {
     resOk( res, "hello");
 });
 
-app.use( ( req, res ) => resErr( res, resErrObj.invalidAPI ) );
+app.use( ( req, res ) => resErr( res, resErrType.invalidAPI ) );
 app.use( uncaughtErrHandler );
 
 const PORT = process.env.PORT || 8080
