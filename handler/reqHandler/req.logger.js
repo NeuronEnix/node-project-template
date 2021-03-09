@@ -1,6 +1,6 @@
 let reqID = 0;
 
-module.exports.logger = function( req, res, next ) {
+module.exports.reqLogger = function( req, res, next ) {
 
     res._log = {
         id: ++reqID,

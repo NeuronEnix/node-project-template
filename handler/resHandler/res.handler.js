@@ -1,5 +1,5 @@
 const util = require("util");
-const reqLogger = require( "../requestHandler" );
+const reqLogger = require( "../reqHandler" );
 
 function logger( res, data ) {
     console.log( "Response:", util.inspect(
