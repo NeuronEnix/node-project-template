@@ -6,21 +6,23 @@ const {
     dbHandler, reqHandler, resHandler
 } = require( "./handler" );
 
+
 dbHandler.connectToDatabase(); 
 
 // Express setup
 const app = express();
 app.use( express.json() );
 app.use( reqHandler.reqLogger );
-
+app.use( require( "./api" ) );
 
 app.post( "/", ( req, res, next ) => {
     resHandler.resOk( res, "hello");
 });
 
+// app.use( )
 // Invalid / Unknown API
 app.use( "*", ( req, res ) => resHandler.resErr( res, resHandler.resErrType.invalidAPI ) );
 app.use( resHandler.uncaughtErrHandler );
 
 const PORT = process.env.PORT || 8080
-app.listen( PORT, () => console.log("Server listening at:", PORT ) );
+app.listen( PORT, () => console.log( "Server listening at:", PORT ) );
