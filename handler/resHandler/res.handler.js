@@ -10,8 +10,8 @@ function logger( res, data ) {
 
 function resOk ( res, data ) {
     const resData = { sts:"OK", code:0, data };
-    res.status( 200 ).send( resData );
     logger( res, { ...resData } );
+    res.status( 200 ).send( resData );
 };
 
 function resErr ( res, resErrType, {infoToClient, infoToServer} = {} ) {
@@ -19,8 +19,8 @@ function resErr ( res, resErrType, {infoToClient, infoToServer} = {} ) {
         sts: "ERR", ...resErrType,
         info: infoToClient || "Error occurred, Try again later..."// info to be displayed to client
     };
-    res.status( 400 ).send( errData );
     logger( res, { ...errData, infoToServer } );
+    res.status( 400 ).send( errData );
 }
 
 const resErrType = {
@@ -42,6 +42,7 @@ const resErrType = {
 
 // uncaught error handler
 function uncaughtErrHandler ( err, req, res, next ) {
+    console.log( "FROM GLOBAL" );
     // if req data is having incorrectly structured json data
     if( err.type === 'entity.parse.failed' ) {
         // call reqLogger here because in the main.js express.json() will throw the err
