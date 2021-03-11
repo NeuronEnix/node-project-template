@@ -12,5 +12,11 @@ const signUpSchema = Joi.object({
     name: schema.name.required()
 });
 
+const signInSchema = Joi.object({
+    email: schema.email.required(),
+    pass: schema.pass.required(),
+});
+
 module.exports.signUp = ( req, res, next ) => validate( res, next, signUpSchema, req.body );
+module.exports.signIn = ( req, res, next ) => validate( res, next, signInSchema, req.body );
 
