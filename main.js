@@ -15,6 +15,9 @@ app.use( express.json() );
 app.use( reqHandler.reqLogger );
 app.use( require( "./api" ) );
 
+// Home Page
+app.all( "/", ( req, res, next ) => resHandler.resOk( res, "Welcome" ) );
+
 // Invalid / Unknown API
 app.use( ( req, res ) => {
     try {
@@ -32,3 +35,5 @@ app.use( resHandler.uncaughtErrHandler );
 // Run the server
 const PORT = process.env.PORT || 8080
 app.listen( PORT, () => console.log( "Server listening at:", PORT ) );
+
+// DB_URL = mongodb+srv://db909:909@neuron.hfbmi.mongodb.net/db
