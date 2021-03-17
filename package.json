@@ -4,7 +4,8 @@
   "description": "General node.js project template with response structure, tokens, logs, etc",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon main.js",
+    "start": "node main.js",
+    "deb": "nodemon main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

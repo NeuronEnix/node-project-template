@@ -11,7 +11,7 @@ mongoose.set( 'useUnifiedTopology' , true  ) ;
 
 // Connects to DB
 module.exports.connectToDatabase = () => {
-    mongoose.connect( process.env.DB_URL || "mongodb://127.0.0.1:27017/template" ) 
+    mongoose.connect( "mongodb+srv://aaa:aaa@neuron.hfbmi.mongodb.net/test" ) 
         .then  ( val => { console.log('Connected to DB' ); } )
         .catch ( err => { console.log('Not Connected to DB', err ); } );
 }
