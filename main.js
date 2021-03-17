@@ -35,5 +35,3 @@ app.use( resHandler.uncaughtErrHandler );
 // Run the server
 const PORT = process.env.PORT || 8080
 app.listen( PORT, () => console.log( "Server listening at:", PORT ) );
-
-// DB_URL = mongodb+srv://db909:909@neuron.hfbmi.mongodb.net/db
