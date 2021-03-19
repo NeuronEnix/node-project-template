@@ -3,7 +3,7 @@ const express = require("express");
 
 // handler
 const {
-    dbHandler, reqHandler, resHandler
+    dbHandler, reqHandler, resHandler, tokenHandler,
 } = require( "./handler" );
 
 // Initializing stuffs
@@ -13,7 +13,14 @@ dbHandler.connectToDatabase();
 const app = express();
 app.use( express.json() );
 app.use( reqHandler.reqLogger );
+
+// Token related stuffs
+app.use( tokenHandler.router ); // grants new refTok and accTok
+app.use( tokenHandler.authorizer );
+
+// Resource API
 app.use( require( "./api" ) );
+
 
 // Invalid / Unknown API
 app.use( ( req, res ) => {

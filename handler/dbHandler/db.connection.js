@@ -9,9 +9,11 @@ mongoose.set( 'useUnifiedTopology' , true  ) ;
 // Importing schema 
 // require( './app/user/user.model.js' ) ;
 
+const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/db";
+
 // Connects to DB
 module.exports.connectToDatabase = () => {
-    mongoose.connect( "mongodb+srv://aaa:aaa@neuron.hfbmi.mongodb.net/test" ) 
+    mongoose.connect( DB_URL ) 
         .then  ( val => { console.log('Connected to DB' ); } )
         .catch ( err => { console.log('Not Connected to DB', err ); } );
 }

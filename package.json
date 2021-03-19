@@ -2,10 +2,10 @@
   "name": "project-template",
   "version": "1.0.0",
   "description": "General node.js project template with response structure, tokens, logs, etc",
-  "main": "main.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node main.js",
-    "deb": "nodemon main.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,7 +23,10 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "joi": "^17.4.0",
-    "mongoose": "^5.11.19",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.11.19"
+  },
+  "devDependencies": {
     "nodemon": "^2.0.7"
   }
 }

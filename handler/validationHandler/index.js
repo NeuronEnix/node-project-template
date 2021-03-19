@@ -1,4 +1,4 @@
-const {resErr, resErrType } = require( "../resHandler" );
+const { resErr, resErrType } = require( "../resHandler" );
 module.exports.validate = ( res, next, schema, data ) => {
     schema.validateAsync( data )
         .then( val => next() )
