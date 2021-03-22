@@ -1,5 +1,9 @@
+require( "dotenv" ).config();
 // npm modules
 const express = require("express");
+const passport = require( "passport" );
+require( "./googleAuth" )( passport );
+const path = require( "path" );
 
 // handler
 const {
@@ -12,14 +16,21 @@ dbHandler.connectToDatabase();
 // Express setup
 const app = express();
 app.use( express.json() );
+app.use('/', express.static('public') );
 app.use( reqHandler.reqLogger );
 
-// Token related stuffs
-app.use( tokenHandler.router ); // grants new refTok and accTok
-app.use( tokenHandler.authorizer );
+app.use(passport.initialize());
+app.get( "/google", passport.authenticate( "google", { scope: [ "profile", "email" ] } ) );
+app.get( "/google/callback", passport.authenticate( "google", { failureRedirect: "/login" } ), ( req, res ) => {
+    return resHandler.resOk( res, { user: req.user } );
+} );
 
-// Resource API
-app.use( require( "./api" ) );
+// // Token related stuffs
+// app.use( tokenHandler.router ); // grants new refTok and accTok
+// app.use( tokenHandler.authorizer );
+
+// // Resource API
+// app.use( require( "./api" ) );
 
 
 // Invalid / Unknown API

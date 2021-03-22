@@ -42,7 +42,7 @@ const resErrType = {
 
 // uncaught error handler
 function uncaughtErrHandler ( err, req, res, next ) {
-    console.log( "FROM GLOBAL" );
+    console.log( "RESPONSE FROM UNCAUGHT ERROR HANDLER" );
     // if req data is having incorrectly structured json data
     if( err.type === 'entity.parse.failed' ) {
         // call reqLogger here because in the main.js express.json() will throw the err
