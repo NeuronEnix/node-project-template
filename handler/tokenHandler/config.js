@@ -1,12 +1,7 @@
 const TokenModel = require( "./model" );
-// const { } = require( "../../api/user" );
 const { resErr, resErrType } = require( "../resHandler" );
 
-
-module.exports.tokenNotRequiredURL = new Set([
-    "/user/sign-in"
-])
-
+module.exports.maxConcurrentSignInCount = process.env.MAX_CONCURRENT_LOGIN_COUNT || 1;
 
 module.exports.refTok = {
 
@@ -37,29 +32,23 @@ module.exports.accTok = {
     },
 }
 
-module.exports.hardAuthenticate = ( accTokData, refTok ) => {
-    const accTok = req
-}
+// "req.user" will have accTokData
+module.exports.hardAuthorizeSequence = async ( req, res, next ) => {
+    // Write Query to db and verify
+    const doc = await TokenModel.findById( req.user.tid )
+    if( !doc ) return resErr( res, resErrType.invalidToken );
+    console.log( "Hard Authorization: Success" );
+    return next();
 
-module.exports.isAuthenticated = ( accTokData, refTokData, res ) => {
-    console.log( "Validating and authorizing the token -> user" )
-
-    if ( accTokData.tid !== refTokData.tid )
-        throw { name: "JsonWebTokenError", info : { infoToServer: new Error( "JsonWebTokenError" ) } }
-
-    res.user = accTokData;
-
-    console.log( res.user )
 }
 
 module.exports.tokenErrHandler = ( err, req, res, next ) => {
-    const info = err.info || new Error( "JsonWebTokenError" );
     switch ( err.name ) {
-        case 'TokenExpiredError': return resErr( res, resErrType.tokenExpired, info  );
+        case 'TokenExpiredError': return resErr( res, resErrType.tokenExpired );
         case "TokenNotFound": // falls through
         case 'JsonWebTokenError': // falls through
         default: return resErr( res, resErrType.invalidToken,
-            { infoToClient: "Please sign in again", infoToServer: info.infoToServer }
+            { infoToClient: "Please sign in again", infoToServer: err }
         );
     }
 }

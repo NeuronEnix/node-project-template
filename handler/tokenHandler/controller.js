@@ -10,50 +10,31 @@ class Token {
         this.#expiresIn = expiresIn;
     }
     decode( tok ) { return jwt.decode( tok ) };
-    getData( tok ) {
-        if ( !tok ) throw { name: "TokenNotFound", errObj: new Error( "TokenNotFound" ) } ;
-        console.log( tok )
-        const tokData = jwt.verify( tok, this.#key );
-        delete tokData.iat;
-        delete tokData.exp;
-        delete tokData.nbf;
-        delete tokData.jti;
-        return tokData;
-    }
-    sign( payload ) { return jwt.sign( payload, this.#key, { expiresIn: this.#expiresIn } ) }
-    getTok( payload ) {
-        return { data:payload, tok: jwt.sign( payload, this.#key, { expiresIn: this.#expiresIn } ) };
-    }
+    sign( payload ) { return jwt.sign( payload, this.#key, { expiresIn: this.#expiresIn } ) };
+    verify( tok ) { return jwt.verify( tok, this.#key ) };
 }
 
 class AccessToken extends Token {
     constructor( key, expiresIn ) { super( key, expiresIn ); }
-    getTok( payload, refTokData ) { 
-        return super.getTok( payload ? payload : config.refTok.getPayloadUsingTokData( refTokData ) )
-    }
 }
 
 class RefreshToken extends Token {
     #cookieProperties;
     constructor( key, expiresIn, cookieMaxAge  ) {
         super( key, expiresIn );
-        this.#cookieProperties = { maxAge: cookieMaxAge, httpOnly: true };
+        this.#cookieProperties = { maxAge: cookieMaxAge, httpOnly: true, path: "/tok" };
     }
     async sign ( payload = {} ) {
         payload.iat = new Date().getTime();
         const tokDoc = new TokenModel();
-        const tok = super.sign( payload );
         Object.assign( tokDoc, payload );
         await tokDoc.save();
+        payload.tid = tokDoc._id;
+        const tok = super.sign( payload );
+        tokDoc.concurrentSignInLimiter( config.maxConcurrentSignInCount );
         return tok;
     }
 
-    getTok( payload, refTokData ) { 
-        if( !payload ) payload = config.refTok.getPayloadUsingTokData( refTokData );
-        payload.tid = "tok_id";
-        return super.getTok( payload );
-    }
-    validateTokData( tokData ) { console.log( "Validating refTok"); return tokData; }
     addToCookie( res, tok ) { 
         res.cookie( "refTok", tok, this.#cookieProperties );
     }
@@ -70,16 +51,33 @@ module.exports.refTok = new RefreshToken(
     config.refTok.cookieMaxAgeInMS
 );
 
-module.exports.authorizer = ( req, res, next ) => {
-    console.log( "Authorizing...");
+
+module.exports.softAuthorize = ( req, res, next ) => {
     try {
-        accTokData = this.accTok.getData( req.header( 'Authorization' ) );
-        refTokData = this.refTok.getData( req.cookies.refTok );
-        config.isAuthenticated( accTokData, refTokData, res );
-        console.log( "Authorized");
-        next();
-    } catch ( err ) {
-        if ( config.tokenNotRequiredURL.has( req.url ) ) return next();
+        console.log( "Soft Authorization: In Progress");
+        const aTok = req.header( 'Authorization' );
+        const accTokData = this.accTok.verify( aTok );
+        req.user = accTokData;
+        console.log( "Soft Authorization: Success" );
+        return next();
+
+    } catch( err ) {
+        console.log( "Soft Authorization: Failed" );
         return config.tokenErrHandler( err, req, res, next );
     }
 }
+
+module.exports.hardAuthorize = async ( req, res, next ) => {
+    try {
+        console.log( "Hard Authorization: In Progress");
+        const aTok = req.header( 'Authorization' );
+        const accTokData = this.accTok.verify( aTok );
+        req.user = accTokData;
+        return config.hardAuthorizeSequence(req, res, next );
+
+    } catch( err ) {
+        console.log( "Hard Authorization: Failed" );
+        return config.tokenErrHandler( err, req, res, next );
+    }
+}
+

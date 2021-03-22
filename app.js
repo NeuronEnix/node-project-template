@@ -5,6 +5,8 @@ const passport = require( "passport" );
 require( "./googleAuth" )( passport );
 const path = require( "path" );
 
+var cookieParser = require('cookie-parser')
+
 // handler
 const {
     dbHandler, reqHandler, resHandler, tokenHandler,
@@ -15,6 +17,7 @@ dbHandler.connectToDatabase();
 
 // Express setup
 const app = express();
+app.use( cookieParser() );
 app.use( express.json() );
 app.use('/', express.static('public') );
 app.use( reqHandler.reqLogger );
@@ -32,6 +35,11 @@ app.get( "/google/callback", passport.authenticate( "google", { failureRedirect:
 // // Resource API
 app.use( require( "./api" ) );
 
+app.get( "/resource", tokenHandler.softAuthorize, tokenHandler.hardAuthorize, ( req, res, next ) => {
+    return resHandler.resOk( res, {
+        Resource: "Here is the Resource..."
+    })
+}) 
 
 // Invalid / Unknown API
 app.use( ( req, res ) => {

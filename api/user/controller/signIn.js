@@ -20,11 +20,12 @@ module.exports = async function signIn( req, res, next ) {
         refTok.addToCookie( res, rTok );
 
         const { tid, iat } = refTok.decode( rTok );
-        
+
         const accTokPayload = {
             uid: userDoc._id,
-            tid, iat
+            tid, tat:iat
         }
+        
         return resOk( res, { accTok : accTok.sign( accTokPayload ) } );
         
     } catch ( err ) {
@@ -52,7 +53,7 @@ router.use( "/tok", hardAuthorizeUsingRefTok,  )
 
 router.get( "/new-ref", (r,r,n) => {
     
-    RefreshToken.getTok( Token.getPayload( tid ) );
+    RefreshToken.getTok( Token.getPayload( errType ) );
 
 })
 
