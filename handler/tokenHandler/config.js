@@ -37,7 +37,11 @@ module.exports.accTok = {
     },
 }
 
-module.exports.validateAndAuthorizeToken = function ( accTokData, refTokData, res ) {
+module.exports.hardAuthenticate = ( accTokData, refTok ) => {
+    const accTok = req
+}
+
+module.exports.isAuthenticated = ( accTokData, refTokData, res ) => {
     console.log( "Validating and authorizing the token -> user" )
 
     if ( accTokData.tid !== refTokData.tid )

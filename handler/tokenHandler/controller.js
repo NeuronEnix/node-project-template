@@ -1,5 +1,6 @@
 const jwt = require( "jsonwebtoken" );
 const config = require( "./config" );
+const TokenModel = require( "./model" );
 
 class Token {
     #key;
@@ -8,8 +9,10 @@ class Token {
         this.#key = key;
         this.#expiresIn = expiresIn;
     }
+    decode( tok ) { return jwt.decode( tok ) };
     getData( tok ) {
         if ( !tok ) throw { name: "TokenNotFound", errObj: new Error( "TokenNotFound" ) } ;
+        console.log( tok )
         const tokData = jwt.verify( tok, this.#key );
         delete tokData.iat;
         delete tokData.exp;
@@ -17,6 +20,7 @@ class Token {
         delete tokData.jti;
         return tokData;
     }
+    sign( payload ) { return jwt.sign( payload, this.#key, { expiresIn: this.#expiresIn } ) }
     getTok( payload ) {
         return { data:payload, tok: jwt.sign( payload, this.#key, { expiresIn: this.#expiresIn } ) };
     }
@@ -35,6 +39,15 @@ class RefreshToken extends Token {
         super( key, expiresIn );
         this.#cookieProperties = { maxAge: cookieMaxAge, httpOnly: true };
     }
+    async sign ( payload = {} ) {
+        payload.iat = new Date().getTime();
+        const tokDoc = new TokenModel();
+        const tok = super.sign( payload );
+        Object.assign( tokDoc, payload );
+        await tokDoc.save();
+        return tok;
+    }
+
     getTok( payload, refTokData ) { 
         if( !payload ) payload = config.refTok.getPayloadUsingTokData( refTokData );
         payload.tid = "tok_id";
@@ -62,7 +75,7 @@ module.exports.authorizer = ( req, res, next ) => {
     try {
         accTokData = this.accTok.getData( req.header( 'Authorization' ) );
         refTokData = this.refTok.getData( req.cookies.refTok );
-        config.validateAndAuthorizeToken( accTokData, refTokData, res );
+        config.isAuthenticated( accTokData, refTokData, res );
         console.log( "Authorized");
         next();
     } catch ( err ) {

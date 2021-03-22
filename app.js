@@ -30,7 +30,7 @@ app.get( "/google/callback", passport.authenticate( "google", { failureRedirect:
 // app.use( tokenHandler.authorizer );
 
 // // Resource API
-// app.use( require( "./api" ) );
+app.use( require( "./api" ) );
 
 
 // Invalid / Unknown API

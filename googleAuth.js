@@ -30,7 +30,7 @@ module.exports = function ( passport ) {
     passport.deserializeUser( function ( id, done ) {
         console.log( "Deserializing user")
         console.log( "id: ", id );
-        done( err, {
+        done( null, {
             id:"user123",
             name:"custom"
         });
