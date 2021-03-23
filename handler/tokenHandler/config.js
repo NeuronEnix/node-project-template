@@ -35,20 +35,22 @@ module.exports.accTok = {
 // "req.user" will have accTokData
 module.exports.hardAuthorizeSequence = async ( req, res, next ) => {
     // Write Query to db and verify
-    const doc = await TokenModel.findById( req.user.tid )
-    if( !doc ) return resErr( res, resErrType.invalidToken );
+    const doc = await TokenModel.findById( req.user.tid, "iat uid" );
+    console.log( doc );
+    if( !doc ) return resErr( res, resErrType.unAuthorized );
     console.log( "Hard Authorization: Success" );
     return next();
 
 }
 
 module.exports.tokenErrHandler = ( err, req, res, next ) => {
+    let infoToServer = err;
     switch ( err.name ) {
         case 'TokenExpiredError': return resErr( res, resErrType.tokenExpired );
         case "TokenNotFound": // falls through
-        case 'JsonWebTokenError': // falls through
+        case 'JsonWebTokenError': infoToServer = err.message; // falls through
         default: return resErr( res, resErrType.invalidToken,
-            { infoToClient: "Please sign in again", infoToServer: err }
+            { infoToClient: "Please sign in again", infoToServer }
         );
     }
 }
